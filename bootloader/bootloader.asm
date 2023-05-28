@@ -1,7 +1,6 @@
 [org 0x7c00]
 [bits 16]
 
-
 section .text
 boot:
 	cli ; no interrupts
@@ -10,40 +9,18 @@ boot:
 ;; set the buffer
 	mov es, ax
 	xor bx, bx
-	mov al, 35 ; read number of sectors
-	mov ch, 0 ; track 0
-	mov cl, 2 ; sector to read (The second sector)
-	mov dh, 0 ; head number
-	mov dl, 0 ; drive number
-	mov ah, 0x02 ; read sectors from disk
-	int 0x13 ; call the BIOS routine
+;	mov al, 2 ; read number of sectors
+;	mov ch, 0 ; track 0
+;	mov cl, 2 ; sector to read (The second sector)
+;	mov dh, 0 ; head number
+;	mov dl, 0 ; drive number
+;	mov ah, 0x02 ; read sectors from disk
+;	int 0x13 ; call the BIOS routine
 
-
-gdt_start:
-gdt_null:
-	dd 0x00
-	dd 0x00
-gdt_code:
-	dw 0xFFFF
-	dw 0x00
-	db 0x00
-	db 10011010b
-	db 11001111b
-	db 0x00
-gdt_data:
-	dw 0xFFFF
-	dw 0x00
-	db 0x00
-	db 10010010b
-	db 11001111b
-	db 0x00
-gdt_end:
-gdt_descriptor:
-	dw gdt_end - gdt_start - 1
-	dd gdt_start
-
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
+; clear the screen
+	mov ah, 0x00
+	mov al, 0x03
+	int 0x10
 
 	cli
 	lgdt[gdt_descriptor]
@@ -51,14 +28,8 @@ DATA_SEG equ gdt_data - gdt_start
 	or al, 0x01
 	mov cr0, eax
 
-	mov al, 'B'
-    mov ah, 0x0f
-    mov [0xb8000], ax 
-
-
 	jmp CODE_SEG:_main32
-
-
+	%include "bootloader/gdt.asm"
 
 [bits 32]
 _main32:
@@ -83,7 +54,11 @@ _main32:
     mov ah, 0x0f
     mov [0xb8000], ax 
 
-	jmp 0x60:0x60 ; jump to kernel location
+	mov al, 'B'
+    mov ah, 0x0f
+    mov [0xb8010], ax 
+
+;	jmp 0x50:0x00 ; jump to kernel location
 
 
 	jmp	$

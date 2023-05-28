@@ -16,11 +16,10 @@ kernel:
 bootdisk: bootloader kernel
 	dd if=/dev/zero of=$(DISK_IMG) bs=512 count=2880
 	dd conv=notrunc if=$(BOOTLOADER) of=$(DISK_IMG) bs=512 count=1 seek=0
-	dd conv=notrunc if=$(KERNEL) of=$(DISK_IMG) bs=512 count=1 seek=1
+	dd conv=notrunc if=$(KERNEL) of=$(DISK_IMG) bs=512 count=40 seek=1
 
 qemu:
 	qemu-system-i386 -machine q35 -fda $(DISK_IMG)
 
 clear:
 	rm $(BUILD_DIR)/*
-	rm disk.img
