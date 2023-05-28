@@ -1,7 +1,6 @@
-#include <cstdio>
-int main(){
+extern "C" int main(){
 
-    printf("Hello world!\n");
+    *(char*)0xb8000 = 'Q';    
 
     while(true) ;
     return 0;

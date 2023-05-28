@@ -1,0 +1,8 @@
+cmp	A, B
+
+A == B	je
+A != B	jne
+A > B	jg
+A < B	jl
+A >= B	jge
+A <= B	jle
