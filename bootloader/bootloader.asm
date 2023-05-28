@@ -1,22 +1,25 @@
 [org 0x7c00]
 [bits 16]
 
+
+KERNEL equ 0x7f00
 section .text
 boot:
+
 	cli ; no interrupts
 	cld ; all that we need to init
 	mov ax, 0x50
 ;; set the buffer
-	mov es, ax
-	xor bx, bx
-;	mov al, 2 ; read number of sectors
-;	mov ch, 0 ; track 0
-;	mov cl, 2 ; sector to read (The second sector)
-;	mov dh, 0 ; head number
-;	mov dl, 0 ; drive number
-;	mov ah, 0x02 ; read sectors from disk
-;	int 0x13 ; call the BIOS routine
 
+	mov	ah, 2
+	mov	al, 40
+	mov	ch, 0
+	mov	cl, 2
+	mov	dh, 0
+	mov dl, 0
+	mov	bx, KERNEL
+	int 0x13 ; 
+	
 ; clear the screen
 	mov ah, 0x00
 	mov al, 0x03
@@ -58,8 +61,7 @@ _main32:
     mov ah, 0x0f
     mov [0xb8010], ax 
 
-;	jmp 0x50:0x00 ; jump to kernel location
-
+	jmp KERNEL ; jump to kernel location
 
 	jmp	$
 

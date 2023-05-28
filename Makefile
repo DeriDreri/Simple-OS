@@ -11,7 +11,7 @@ bootloader:
 	nasm bootloader/bootloader.asm -f bin -o $(BUILD_DIR)/bootloader.o
 
 kernel:
-	gcc kernel/kernel.cpp kernel/kernel_entry.s -m32 -o $(BUILD_DIR)/kernel.o 
+	gcc kernel/kernel.c kernel/kernel_entry.s -m32 -o $(BUILD_DIR)/kernel.o 
 
 bootdisk: bootloader kernel
 	dd if=/dev/zero of=$(DISK_IMG) bs=512 count=2880
