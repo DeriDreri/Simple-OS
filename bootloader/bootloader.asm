@@ -1,5 +1,7 @@
 [org 0x7c00]
+KERNEL equ 0x1000
 [bits 16]
+<<<<<<< HEAD
 
 
 KERNEL equ 0x7f00
@@ -26,6 +28,20 @@ boot:
 	int 0x10
 
 	cli
+=======
+section .text
+	cli ; no interrupts
+	cld ; all that we need to init
+	mov bx, KERNEL
+	mov al, 50 ; read number of sectors
+	mov ch, 0 ; track 0
+	mov cl, 2 ; sector to read (The second sector)
+	mov dh, 0 ; head number
+	;mov dl, 0 ; drive number
+	mov ah, 0x02 ; read sectors from disk
+	int 0x13 ; call the BIOS routine
+
+>>>>>>> origin/kernel-o
 	lgdt[gdt_descriptor]
 	mov eax, cr0
 	or al, 0x01
@@ -33,6 +49,10 @@ boot:
 
 	jmp CODE_SEG:_main32
 	%include "bootloader/gdt.asm"
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/kernel-o
 
 [bits 32]
 _main32:
@@ -56,14 +76,20 @@ _main32:
 	;mov al, 'A'
     ;mov ah, 0x0f
     ;mov [0xb8000], ax 
+<<<<<<< HEAD
 
 	mov al, 'B'
     mov ah, 0x0f
     mov [0xb8010], ax 
 
 	jmp KERNEL ; jump to kernel location
+=======
+
+	jmp KERNEL;jump to kernel location
+>>>>>>> origin/kernel-o
 
 	jmp	$
+
 
 times	510-($-$$) db 0 	;marking as boot file
 db	0x55, 0xaa	
