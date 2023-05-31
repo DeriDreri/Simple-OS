@@ -5,6 +5,6 @@ kernel_start:
     mov $0x0f, %ah
     mov %ax, 0xb8000
    
-#    call main
+    call main
 loop:
     jmp loop
