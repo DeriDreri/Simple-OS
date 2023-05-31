@@ -12,15 +12,20 @@ section .text
 	;mov dl, 0 ; drive number
 	mov ah, 0x02 ; read sectors from disk
 	int 0x13 ; call the BIOS routine
+	
+	; clear the screen
+	mov ah, 0x00
+	mov al, 0x03
+	int 0x10
 
 	lgdt[gdt_descriptor]
 	mov eax, cr0
 	or al, 0x01
 	mov cr0, eax
 
+
 	jmp CODE_SEG:_main32
 	%include "bootloader/gdt.asm"
-
 
 [bits 32]
 _main32:
