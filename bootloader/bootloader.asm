@@ -26,14 +26,7 @@ section .text
 
 	jmp CODE_SEG:_main32
 	%include "bootloader/gdt.asm"
-<<<<<<< HEAD
-=======
 
-<<<<<<< HEAD
->>>>>>> origin/kernel-o
-
-=======
->>>>>>> kernel-o
 [bits 32]
 _main32:
 	;set up segment registers again
@@ -55,18 +48,13 @@ _main32:
 
 	;mov al, 'A'
     ;mov ah, 0x0f
-    ;mov [0xb8000], ax 
-<<<<<<< HEAD
-
-	mov al, 'B'
-    mov ah, 0x0f
-    mov [0xb8010], ax 
+    ;mov [0xb8000], ax  
 
 	jmp KERNEL ; jump to kernel location
-=======
+
 
 	jmp KERNEL;jump to kernel location
->>>>>>> origin/kernel-o
+
 
 	jmp	$
 

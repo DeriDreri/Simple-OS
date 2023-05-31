@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-extern void main(){
-
-    char * video_memory = (char*)0xb8000;
-    video_memory[0] = 'Q';    
-    return;
-=======
-=======
 #define REG_SCREEN_CTRL 0x3D4
 #define REG_SCREEN_DATA 0x3D5
 #define VIDEO_ADDRESS 0xb8000
@@ -18,15 +9,11 @@ char * getVideoAdress(int, int);
 void print(char *, int, int);
 void clearScreen();
 
->>>>>>> kernel-o
 int main(){
     
     print("Kernel loaded sucessfuly!", 0, 0);
 
     return 0;
-<<<<<<< HEAD
->>>>>>> origin/kernel-o
-=======
 }
 
 char * getVideoAdress(int column, int row){
@@ -52,5 +39,4 @@ void clearScreen(){
             print(" ", col, row);
         }
     }
->>>>>>> kernel-o
 }
