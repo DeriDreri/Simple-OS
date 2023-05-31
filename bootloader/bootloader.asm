@@ -53,9 +53,9 @@ _main32:
 	or al, 0x02
 	out 0x92, al
 
-	mov al, 'A'
-    mov ah, 0x0f
-    mov [0xb8000], ax 
+	;mov al, 'A'
+    ;mov ah, 0x0f
+    ;mov [0xb8000], ax 
 
 	mov al, 'B'
     mov ah, 0x0f

@@ -1,6 +1,6 @@
 BUILD_DIR = build
-BOOTLOADER=$(BUILD_DIR)/bootloader.o
-KERNEL=$(BUILD_DIR)/kernel.o
+BOOTLOADER=$(BUILD_DIR)/bootloader.bin
+KERNEL=$(BUILD_DIR)/kernel.bin
 DISK_IMG=$(BUILD_DIR)/disk.img
 
 .PHONY: all bootdisk bootloader kernel
@@ -8,10 +8,12 @@ DISK_IMG=$(BUILD_DIR)/disk.img
 all: bootdisk
 
 bootloader:
-	nasm bootloader/bootloader.asm -f bin -o $(BUILD_DIR)/bootloader.o
+	nasm bootloader/bootloader.asm -f bin -o $(BUILD_DIR)/bootloader.bin
 
 kernel:
-	gcc kernel/kernel.c kernel/kernel_entry.s -m32 -o $(BUILD_DIR)/kernel.o 
+	gcc -ffreestanding -c kernel/kernel.c  -m32 -o build/kernel.o
+	as kernel/kernel_entry.s -o build/kernel_entry.o 
+	ld -o $(KERNEL) -Ttext 0x0 --format binary $(BUILD_DIR)/kernel.o $(BUILD_DIR)/kernel_entry.o
 
 bootdisk: bootloader kernel
 	dd if=/dev/zero of=$(DISK_IMG) bs=512 count=2880
