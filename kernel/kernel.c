@@ -11,9 +11,7 @@ void clearScreen();
 
 int main(){
     
-    print("Hello, world!", 0, 0);
-    clearScreen();
-    print("Hello, world!", 0, 1);
+    print("Kernel loaded sucessfuly!", 0, 0);
 
     return 0;
 }
