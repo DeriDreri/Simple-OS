@@ -1,34 +1,6 @@
 [org 0x7c00]
 KERNEL equ 0x1000
 [bits 16]
-<<<<<<< HEAD
-
-
-KERNEL equ 0x7f00
-section .text
-boot:
-
-	cli ; no interrupts
-	cld ; all that we need to init
-	mov ax, 0x50
-;; set the buffer
-
-	mov	ah, 2
-	mov	al, 40
-	mov	ch, 0
-	mov	cl, 2
-	mov	dh, 0
-	mov dl, 0
-	mov	bx, KERNEL
-	int 0x13 ; 
-	
-; clear the screen
-	mov ah, 0x00
-	mov al, 0x03
-	int 0x10
-
-	cli
-=======
 section .text
 	cli ; no interrupts
 	cld ; all that we need to init
@@ -40,20 +12,28 @@ section .text
 	;mov dl, 0 ; drive number
 	mov ah, 0x02 ; read sectors from disk
 	int 0x13 ; call the BIOS routine
+	
+	; clear the screen
+	mov ah, 0x00
+	mov al, 0x03
+	int 0x10
 
->>>>>>> origin/kernel-o
 	lgdt[gdt_descriptor]
 	mov eax, cr0
 	or al, 0x01
 	mov cr0, eax
+
 
 	jmp CODE_SEG:_main32
 	%include "bootloader/gdt.asm"
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 >>>>>>> origin/kernel-o
 
+=======
+>>>>>>> kernel-o
 [bits 32]
 _main32:
 	;set up segment registers again
