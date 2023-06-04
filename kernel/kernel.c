@@ -12,6 +12,7 @@ char * getVideoAdress(int, int);
 void print(char *, int, int);
 void printC(char, int, int);
 void clearScreen();
+void scrollDown();
 
 int main(){
     
@@ -27,6 +28,7 @@ int main(){
     printC(load_from_memory(0), 0, 1);
     printC(load_from_memory(1), 0, 2);
     print((char *) get_memory_address(0), 0, 3);
+    //scrollDown();
     
 
     return 0;
@@ -40,6 +42,18 @@ char * getVideoAdress(int column, int row){
 void printC(char characater, int column, int row){
     char * address = getVideoAdress(column, row);
         address[0] = characater;
+}
+
+void scrollDown(){
+    int row = 1;
+    int col = 0;
+    for (row = 1; row < MAX_ROWS; row++){
+        for (col = 0; col < MAX_COLS; col++){
+            char * addressTo = getVideoAdress(col, row-1);
+            char * addressFrom = getVideoAdress(col, row);
+            *addressTo = *addressFrom;
+        }
+    }
 }
 
 
