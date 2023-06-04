@@ -10,7 +10,8 @@
 #define DATA_LIMIT 65536
 #include "portOperations.c"
 
-extern void write_to_memory(int, char);
+
+extern void write_to_memory(int, unsigned char);
 extern char load_from_memory(int);
 extern int get_memory_address(int);
 char * getVideoAdress(int, int);
@@ -18,15 +19,17 @@ void print(char *, int, int);
 void printC(char, int, int);
 void clearScreen();
 void scrollDown();
-void write_string_to_memory(char * string, int memory_address);
+void write_string_to_memory(char * string, int memory_a771ddress);
 void print_head(int, int);
 int getCursorPositionOffset();
 void set_cursor_offset(int offset);
 void setStyle(unsigned char style);
 
+int cursor_offset;
+
 int main(){
     
-    int cursor_offset = getCursorPositionOffset();
+    cursor_offset = getCursorPositionOffset();
     
     setStyle(WHITE_ON_BLACK);
     print("Kernel loaded sucessfuly!", 0, 0);
@@ -106,11 +109,10 @@ void print_head(int row, int data_section){
     int col = 0;
 
     for (int i = 0; i < 256; i++){
-        int data = ( int) load_from_memory(i+data_section*256);
+        unsigned char data = load_from_memory(i+data_section*256);
 
-        if(data < 0)
-            data = 256 + data;
-        int first =  data % 16;
+  
+        unsigned char first =  data % 16;
         if(first <= 9){
             first += '0';
         }
@@ -118,7 +120,7 @@ void print_head(int row, int data_section){
             first += 'A';
             first -= 10;
         }
-        int second =  data / 16;
+        unsigned char second =  data / 16;
         if(second <= 9){
             second += '0';
         }
