@@ -24,6 +24,7 @@ void print_head(int, int);
 int getCursorPositionOffset();
 void set_cursor_offset(int offset);
 void setStyle(unsigned char style);
+unsigned long long get_elapsed_time();
 
 int cursor_offset;
 
@@ -169,4 +170,14 @@ void set_cursor_offset(int offset) {
     port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset >> 8));
     port_byte_out(REG_SCREEN_CTRL, 15);
     port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset & 0xff));
+}
+
+unsigned long long get_elapsed_time() {
+    unsigned int low, high;
+    unsigned long long time;
+
+    __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high));
+    time = ((unsigned long long)high << 32) | low;
+
+    return time;
 }
