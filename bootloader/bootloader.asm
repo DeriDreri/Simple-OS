@@ -53,8 +53,6 @@ _main32:
 	jmp KERNEL ; jump to kernel location
 
 
-	jmp KERNEL;jump to kernel location
-
 
 	jmp	$
 
