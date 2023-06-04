@@ -4,6 +4,7 @@
 #define MAX_ROWS 25
 #define MAX_COLS 80
 #define WHITE_ON_BLACK 0x0f
+#define DATA_LIMIT 65536
 
 extern void write_to_memory(int, char);
 extern char load_from_memory(int);
@@ -14,18 +15,18 @@ void printC(char, int, int);
 void clearScreen();
 void scrollDown();
 void write_string_to_memory(char * string, int memory_address);
+void print_head(int, int);
 
 int main(){
     
     print("Kernel loaded sucessfuly!", 0, 0);
-
-
-
-    write_string_to_memory("Hello, world!", 0);
-    printC(load_from_memory(0), 0, 1);
-    printC(load_from_memory(1), 0, 2);
-    print((char *) get_memory_address(0), 0, 3);
+    //write_string_to_memory("Hello, world!", 0);
+    //printC(load_from_memory(0), 0, 1);
+    //printC(load_from_memory(1), 0, 2);
+    //print((char *) get_memory_address(0), 0, 3);
     //scrollDown();
+    //print_head(0);
+    print_head(1,0);
     
 
     return 0;
@@ -64,6 +65,10 @@ void scrollDown(){
             *addressTo = *addressFrom;
         }
     }
+    for(col = 0; col < MAX_COLS; col++){
+        char * addressTo = getVideoAdress(col, row);
+        *addressTo = ' ';
+    }
 }
 
 
@@ -75,6 +80,43 @@ void print(char * string, int column, int row){
         address += 2;
     }
 
+}
+void print_head(int row, int data_section){
+    row--;
+    int col = 0;
+
+    for (int i = 0; i < 256; i++){
+        int data = ( int) load_from_memory(i+data_section*256);
+
+        if(data < 0)
+            data = 256 + data;
+        int first =  data % 16;
+        if(first <= 9){
+            first += '0';
+        }
+        else{
+            first += 'A';
+            first -= 10;
+        }
+        int second =  data / 16;
+        if(second <= 9){
+            second += '0';
+        }
+        else{
+            second += 'A';
+            second -= 10;
+        }
+        
+        if(i % 16 == 0){
+            col = 0;
+            row++;
+        }
+        printC(second, col++, row);
+        printC(first, col++, row);
+        printC(' ', col++, row);
+        
+        
+    }
 }
 
 void clearScreen(){
