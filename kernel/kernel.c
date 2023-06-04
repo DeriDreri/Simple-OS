@@ -13,6 +13,7 @@ void print(char *, int, int);
 void printC(char, int, int);
 void clearScreen();
 void scrollDown();
+void write_string_to_memory(char * string, int memory_address);
 
 int main(){
     
@@ -20,11 +21,7 @@ int main(){
 
 
 
-    write_to_memory(0, 'A');
-    write_to_memory(1, 'B');
-    write_to_memory(2, 'C');
-    write_to_memory(3, 'D');
-    write_to_memory(4, 0);
+    write_string_to_memory("Hello, world!", 0);
     printC(load_from_memory(0), 0, 1);
     printC(load_from_memory(1), 0, 2);
     print((char *) get_memory_address(0), 0, 3);
@@ -42,6 +39,19 @@ char * getVideoAdress(int column, int row){
 void printC(char characater, int column, int row){
     char * address = getVideoAdress(column, row);
         address[0] = characater;
+}
+
+void write_string_to_memory(char * string, int memory_address){
+    char * address = (char *) get_memory_address(memory_address);
+    while(1){
+        if(*string == 0){
+            *address = *string;
+            break;
+        }
+        *address = *string;
+        address++;
+        string++;
+    }
 }
 
 void scrollDown(){
