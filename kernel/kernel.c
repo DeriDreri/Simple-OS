@@ -5,6 +5,7 @@
 #define MAX_COLS 80
 #define WHITE_ON_BLACK 0x0f
 #define DATA_LIMIT 65536
+#include "portOperations.c"
 
 extern void write_to_memory(int, char);
 extern char load_from_memory(int);
@@ -16,6 +17,7 @@ void clearScreen();
 void scrollDown();
 void write_string_to_memory(char * string, int memory_address);
 void print_head(int, int);
+int getCursorPositon();
 
 int main(){
     
@@ -27,7 +29,7 @@ int main(){
     //scrollDown();
     //print_head(0);
     print_head(1,0);
-    
+
 
     return 0;
 }
@@ -115,7 +117,6 @@ void print_head(int row, int data_section){
         printC(first, col++, row);
         printC(' ', col++, row);
         
-        
     }
 }
 
@@ -127,4 +128,14 @@ void clearScreen(){
             print(" ", col, row);
         }
     }
+}
+
+int getCursorPosition(){
+    port_byte_out(REG_SCREEN_CTRL, 14); /* Requesting byte 14: high byte of cursor pos */
+    /* Data is returned in VGA data register (0x3d5) */
+    int position = port_byte_in(REG_SCREEN_DATA);
+    position = position << 8; /* high byte */
+
+    port_byte_out(REG_SCREEN_CTRL, 15); /* requesting low byte */
+    position += port_byte_in(REG_SCREEN_DATA);
 }
