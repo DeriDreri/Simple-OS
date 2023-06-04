@@ -17,7 +17,7 @@ void clearScreen();
 void scrollDown();
 void write_string_to_memory(char * string, int memory_address);
 void print_head(int, int);
-int getCursorPositon();
+int getCursorPositonOffset();
 
 int main(){
     
@@ -130,7 +130,7 @@ void clearScreen(){
     }
 }
 
-int getCursorPosition(){
+int getCursorPositionOffset(){
     port_byte_out(REG_SCREEN_CTRL, 14); /* Requesting byte 14: high byte of cursor pos */
     /* Data is returned in VGA data register (0x3d5) */
     int position = port_byte_in(REG_SCREEN_DATA);
@@ -138,4 +138,6 @@ int getCursorPosition(){
 
     port_byte_out(REG_SCREEN_CTRL, 15); /* requesting low byte */
     position += port_byte_in(REG_SCREEN_DATA);
+    int offset_from_vga = position * 2;
+    return offset_from_vga;
 }
