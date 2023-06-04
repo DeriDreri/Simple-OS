@@ -4,6 +4,9 @@
 #define MAX_ROWS 25
 #define MAX_COLS 80
 #define WHITE_ON_BLACK 0x0f
+#define GREEN_ON_BLACK 0x02
+#define WHITE_ON_RED 0x47
+#define RED_ON_BLACK 0x04
 #define DATA_LIMIT 65536
 #include "portOperations.c"
 
@@ -17,19 +20,23 @@ void clearScreen();
 void scrollDown();
 void write_string_to_memory(char * string, int memory_address);
 void print_head(int, int);
-int getCursorPositonOffset();
+int getCursorPositionOffset();
+void set_cursor_offset(int offset);
+void setStyle(unsigned char style);
 
 int main(){
     
+    int cursor_offset = getCursorPositionOffset();
+    
+    setStyle(WHITE_ON_BLACK);
     print("Kernel loaded sucessfuly!", 0, 0);
-    //write_string_to_memory("Hello, world!", 0);
+    write_string_to_memory("Hello, world!", 0);
     //printC(load_from_memory(0), 0, 1);
     //printC(load_from_memory(1), 0, 2);
-    //print((char *) get_memory_address(0), 0, 3);
+    print((char *) get_memory_address(0), 0, 1);
     //scrollDown();
     //print_head(0);
-    print_head(1,0);
-
+    print_head(2,0);
 
     return 0;
 }
@@ -55,6 +62,17 @@ void write_string_to_memory(char * string, int memory_address){
         address++;
         string++;
     }
+}
+
+void setStyle(unsigned char style){
+    int row = 0;
+    int col = 0;
+    for (row = 0; row < MAX_ROWS; row++){
+        for (col = 0; col < MAX_COLS; col++){
+            char * address = (char *) getVideoAdress(col, row);
+            address[1] = style;
+        }
+    } 
 }
 
 void scrollDown(){
