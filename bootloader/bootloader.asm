@@ -10,6 +10,10 @@ section .text
 	mov bx, MSG_REAL_MODE
 	call print_string_rm
 	call newline_rm
+	
+	;wait for key press
+	mov ah, 0
+	int 0x16
 
 	mov bx, KERNEL
 	mov al, 50 ; read number of sectors
@@ -20,14 +24,16 @@ section .text
 	mov ah, 0x02 ; read sectors from disk
 	int 0x13 ; call the BIOS routine
 	
-	; clear the screen
-	mov ah, 0x00
-	mov al, 0x03
-	int 0x10
+
 
 	mov bx, MSG_LOAD_KERNEL
 	call print_string_rm
 	call newline_rm
+
+	;wait for key press
+	mov ah, 0
+	int 0x16
+
 
 	lgdt[gdt_descriptor]
 	mov bx, MSG_GDT
@@ -37,9 +43,19 @@ section .text
 	mov ah, 0
 	int 0x16
 
+	lgdt[gdt_descriptor]
+	mov bx, MSG_PROT_MODE
+	call print_string_rm
+	call newline_rm
+	;wait for key press
+	mov ah, 0
+	int 0x16
+
+	; clear the screen
 	mov ah, 0x00
 	mov al, 0x03
 	int 0x10
+
 
 	mov eax, cr0
 	or al, 0x01
@@ -84,7 +100,7 @@ MSG_REAL_MODE db "Started in 16-bit real mode", 0
 MSG_LOAD_KERNEL db "Loaded kernel into memory", 0
 MSG_GDT db "Loaded Global Descriptor Table", 0
 ;print in protected mode
-MSG_PROT_MODE db "Entered 32-bit protected mode", 0
+MSG_PROT_MODE db "Entering 32-bit protected mode", 0
 
 times	510-($-$$) db 0 	;marking as boot file
 db	0x55, 0xaa	

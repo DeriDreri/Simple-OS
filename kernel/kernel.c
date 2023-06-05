@@ -1,16 +1,7 @@
-#define REG_SCREEN_CTRL 0x3D4
-#define REG_SCREEN_DATA 0x3D5
-#define VIDEO_ADDRESS 0xb8000
-#define MAX_ROWS 25
-#define MAX_COLS 80
-#define WHITE_ON_BLACK 0x0f
-#define GREEN_ON_BLACK 0x02
-#define WHITE_ON_RED 0x47
-#define RED_ON_BLACK 0x04
-#define DATA_LIMIT 65536
-#define KEYBOARD_STATUS_PORT 0x64
-#define KEYBOARD_DATA_PORT 0x60
+#include "symbols.h"
 #include "portOperations.c"
+#include "keyboard.c"
+#include "keycodes.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -29,6 +20,8 @@ int getCursorPositionOffset();
 void set_cursor_offset(int offset);
 void setStyle(unsigned char style);
 unsigned long long get_elapsed_time();
+int get_row(int memory_address);
+void user_mode();
 
 void wait();
 
@@ -40,7 +33,7 @@ int main(){
     cursor_offset = getCursorPositionOffset();
     
     setStyle(WHITE_ON_BLACK);
-    print("Kernel loaded sucessfuly!", 0, 0);
+    print("Kernel loaded sucessfuly!\n", 0, 0);
     wait();
     write_string_to_memory("Hello, world!", 0);
     //printC(load_from_memory(0), 0, 1);
@@ -54,7 +47,7 @@ int main(){
     wait();      
     setStyle(GREEN_ON_BLACK);
     wait();
-    setStyle(WHITE_ON_RED);
+    user_mode();
 
     return 0;
 }
@@ -64,9 +57,26 @@ char * getVideoAdress(int column, int row){
     return toReturn;
 }
 
-void printC(char characater, int column, int row){
-    char * address = getVideoAdress(column, row);
-        address[0] = characater;
+void printC(char character, int column, int row){
+    char * address;
+    if(column < 0 || row < 0){
+        address = (char *) (VIDEO_ADDRESS + cursor_offset);
+        row = get_row((int) address);
+    }
+    else{
+        address = getVideoAdress(column, row);
+        cursor_offset = (int) address - VIDEO_ADDRESS;
+    }
+
+    if (character == '\n'){
+        cursor_offset = ((int) getVideoAdress(0, row)) - VIDEO_ADDRESS;
+    }
+    else{
+        address[0] = character;
+        cursor_offset += 2;
+    }
+
+    set_cursor_offset(cursor_offset);
 }
 
 void write_string_to_memory(char * string, int memory_address){
@@ -79,7 +89,10 @@ void write_string_to_memory(char * string, int memory_address){
         *address = *string;
         address++;
         string++;
+     
     }
+
+
 }
 
 void setStyle(unsigned char style){
@@ -91,6 +104,10 @@ void setStyle(unsigned char style){
             address[1] = style;
         }
     } 
+}
+
+int get_row(int memory_address){
+    return (memory_address - VIDEO_ADDRESS) / 80;
 }
 
 void scrollDown(){
@@ -111,17 +128,35 @@ void scrollDown(){
 
 
 void print(char * string, int column, int row){
-    char * address = getVideoAdress(column, row);
-    while (*string != 0){
-        address[0] = *string;
-        string++;
-        address += 2;
+    char * address;
+    if(column < 0 || row < 0){
+        address = (char *) (VIDEO_ADDRESS + cursor_offset);
     }
+    else{
+        address = getVideoAdress(column, row);
+        cursor_offset = (int) address - VIDEO_ADDRESS;
+    }
+    while (*string != 0){
+        
+        if (*string == '\n'){
+            address = (char *) getVideoAdress(0, get_row((int) address)+1);
+            cursor_offset = (int) address - VIDEO_ADDRESS;
+        }
+        else{
+            address[0] = *string;
+            address += 2;
+            cursor_offset += 2;
+
+        }
+        string++;
+    }
+  
+    set_cursor_offset(cursor_offset);
 
 }
 void print_head(int row, int data_section){
     row--;
-    int col = 0;
+    int col = 6;
 
     for (int i = 0; i < 256; i++){
         unsigned char data = load_from_memory(i+data_section*256);
@@ -144,15 +179,54 @@ void print_head(int row, int data_section){
             second -= 10;
         }
         
+
         if(i % 16 == 0){
-            col = 0;
+            col = 6;
             row++;
+            unsigned char sector0 = data_section / 16;
+            if(sector0 <= 9){
+                sector0 += '0';
+            }
+            else{
+                sector0 += 'A';
+                sector0 -= 10;
+            }
+            printC(sector0, 0, row);
+            unsigned char sector = data_section % 16;
+            
+            if(sector <= 9){
+                sector += '0';
+            }
+            else{
+                sector += 'A';
+                sector -= 10;
+            }
+            printC(sector, 1, row);
+            unsigned char firstP =  i % 16;
+            if(firstP <= 9){
+                firstP += '0';
+            }
+            else{
+                firstP += 'A';
+                firstP -= 10;
+            }
+            unsigned char secondP =  i / 16;
+            if(secondP <= 9){
+                secondP += '0';
+            }
+            else{
+                secondP += 'A';
+                secondP -= 10;
+            }
+            printC(secondP, 2, row);
+            printC(firstP, 3, row);
         }
         printC(second, col++, row);
         printC(first, col++, row);
         printC(' ', col++, row);
         
     }
+    printC('\n', col, row+1);
 }
 
 void clearScreen(){
@@ -165,26 +239,7 @@ void clearScreen(){
     }
 }
 
-int getCursorPositionOffset(){
-    port_byte_out(REG_SCREEN_CTRL, 14); /* Requesting byte 14: high byte of cursor pos */
-    /* Data is returned in VGA data register (0x3d5) */
-    int position = port_byte_in(REG_SCREEN_DATA);
-    position = position << 8; /* high byte */
 
-    port_byte_out(REG_SCREEN_CTRL, 15); /* requesting low byte */
-    position += port_byte_in(REG_SCREEN_DATA);
-    int offset_from_vga = position * 2;
-    return offset_from_vga;
-}
-
-void set_cursor_offset(int offset) {
-    /* Similar to get_cursor_offset, but instead of reading we write data */
-    offset /= 2;
-    port_byte_out(REG_SCREEN_CTRL, 14);
-    port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset >> 8));
-    port_byte_out(REG_SCREEN_CTRL, 15);
-    port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset & 0xff));
-}
 
 unsigned long long get_elapsed_time() {
     unsigned int low, high;
@@ -196,40 +251,94 @@ unsigned long long get_elapsed_time() {
     return time;
 }
 
-bool is_key_pressed()
-{
-    // Check the keyboard status port (0x64) to determine if a key is pressed
-    // Bit 0 of the status port will be set if there is data available
-    unsigned char status = port_byte_in(KEYBOARD_STATUS_PORT);
-    return (status & 0x01);  // Check the least significant bit
-}
-
-unsigned char read_key()
-{
-    // Wait for a key press by continuously checking the keyboard status
-    while (!is_key_pressed()) {
-   
-    }
-
-    // Read the key code from the data port (0x60)
-    unsigned char key = port_byte_in(KEYBOARD_DATA_PORT);
-    return key;
-}
-
-void wait_for_keypress(unsigned char keyCode)
-{   
-    for (unsigned int i = 0; i < 1000000; ++i) {
-            asm("nop");
-        }
+void input_mode(){
+    char * address = (char *) get_memory_address(0);
+    char * videoAddress = (char *) VIDEO_ADDRESS + cursor_offset;
+    bool loop = true;
+    bool big = true;
     unsigned char key = 0;
-    do {
+    char character;
+    while (loop){
         for (unsigned int i = 0; i < 100000; ++i) {
             asm("nop"); 
         }
         key = read_key();
-    } while (key != keyCode);
+        if(key == 0) 
+            continue;
+        if(key == 0x3a){ // CAPS_LOCK
+            big = !big;
+            continue;
+        } 
+        if(!check_if_letter_key(key)){
+            continue;
+        }
+        for(int i = 0; i < 27; i++){
+            if(keycodes[i].code == key){
+                character = keycodes[i].symbol;
+                if(!big && character != ' ')
+                    character += 32;
+                break;
+            }
+        }
+        printC(character, -1, -1);
+    }
+
 }
-void wait(){
-    wait_for_keypress(0x1C);
-    //wait_for_keypress();
+
+void user_mode(){
+    unsigned char key = 0;
+    bool loop = true;
+    int segment = 0;
+    clearScreen();
+    print("User input mode, enter command\n", 0, 0);
+    while(loop){
+        key = read_key();
+        switch(key){
+            case 0x23: // H
+            segment = 0;
+            print_head(1, segment);
+            break;
+
+            case 0x34: // >
+            if (segment < 255)
+                segment++;
+            print_head(1, segment);
+            break;
+
+            case 0x33: // <
+            if (segment > 0)
+                segment--;
+            print_head(1, segment);
+            break;
+
+            case 0x2e: // C
+            clearScreen();
+            print("User input mode, enter command\n", 0, 0);
+            break;
+
+            case 0x01: // ESC
+            loop = false;
+            clearScreen();
+            break;
+
+            case 0x19: // P
+            clearScreen();
+            print("User input mode, enter command\n", 0, 0);
+            print((char *) get_memory_address(0), 0, 1);
+            break;
+
+            case 0x1f: // S
+            clearScreen();
+            print("User input mode, enter command\n", 0, 0);
+            print("Write to memory:\n", 0, 1);
+            input_mode();
+            break;
+
+            default:
+            for (unsigned int i = 0; i < 100000; ++i) {
+            asm("nop"); 
+            }
+            break;
+        }
+    } 
 }

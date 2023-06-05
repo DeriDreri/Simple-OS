@@ -1,0 +1,16 @@
+#ifndef SYMBOLS
+#define SYMBOLS
+#define REG_SCREEN_CTRL 0x3D4
+#define REG_SCREEN_DATA 0x3D5
+#define VIDEO_ADDRESS 0xb8000
+#define MAX_ROWS 25
+#define MAX_COLS 80
+#define WHITE_ON_BLACK 0x0f
+#define GREEN_ON_BLACK 0x02
+#define WHITE_ON_RED 0x47
+#define RED_ON_BLACK 0x04
+#define DATA_LIMIT 65536
+#define KEYBOARD_STATUS_PORT 0x64
+#define KEYBOARD_DATA_PORT 0x60
+
+#endif
