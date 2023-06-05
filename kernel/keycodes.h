@@ -31,7 +31,7 @@ struct keycode{
 0x30, 'B',
 0x31, 'N',
 0x32, 'M',
-0x39, ' '
+0x39, ' ',
 };
 
 #endif

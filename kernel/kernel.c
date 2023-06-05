@@ -22,6 +22,7 @@ void setStyle(unsigned char style);
 unsigned long long get_elapsed_time();
 int get_row(int memory_address);
 void user_mode();
+unsigned char byteToHexChar(unsigned char);
 
 void wait();
 
@@ -163,63 +164,28 @@ void print_head(int row, int data_section){
 
   
         unsigned char first =  data % 16;
-        if(first <= 9){
-            first += '0';
-        }
-        else{
-            first += 'A';
-            first -= 10;
-        }
+        first = byteToHexChar(first);
         unsigned char second =  data / 16;
-        if(second <= 9){
-            second += '0';
-        }
-        else{
-            second += 'A';
-            second -= 10;
-        }
+        second = byteToHexChar(second);
         
 
         if(i % 16 == 0){
             col = 6;
             row++;
             unsigned char sector0 = data_section / 16;
-            if(sector0 <= 9){
-                sector0 += '0';
-            }
-            else{
-                sector0 += 'A';
-                sector0 -= 10;
-            }
+            sector0 = byteToHexChar(sector0);
             printC(sector0, 0, row);
             unsigned char sector = data_section % 16;
-            
-            if(sector <= 9){
-                sector += '0';
-            }
-            else{
-                sector += 'A';
-                sector -= 10;
-            }
+            sector = byteToHexChar(sector);
             printC(sector, 1, row);
             unsigned char firstP =  i % 16;
-            if(firstP <= 9){
-                firstP += '0';
-            }
-            else{
-                firstP += 'A';
-                firstP -= 10;
-            }
+            firstP = byteToHexChar(firstP);
             unsigned char secondP =  i / 16;
-            if(secondP <= 9){
-                secondP += '0';
-            }
-            else{
-                secondP += 'A';
-                secondP -= 10;
-            }
+            secondP = byteToHexChar(secondP);
             printC(secondP, 2, row);
             printC(firstP, 3, row);
+            printC(' ', 4, row);
+            printC(' ', 5, row);
         }
         printC(second, col++, row);
         printC(first, col++, row);
@@ -227,6 +193,18 @@ void print_head(int row, int data_section){
         
     }
     printC('\n', col, row+1);
+}
+
+unsigned char byteToHexChar(unsigned char byte){
+    unsigned char toReturn = byte;
+    if(toReturn <= 9){
+        toReturn += '0';
+    }
+    else{
+        toReturn += 'A';
+        toReturn -= 10;
+    }
+    return toReturn;
 }
 
 void clearScreen(){
@@ -258,6 +236,7 @@ void input_mode(){
     bool big = true;
     unsigned char key = 0;
     char character;
+    int start_offset = cursor_offset;
     while (loop){
         for (unsigned int i = 0; i < 100000; ++i) {
             asm("nop"); 
@@ -269,6 +248,23 @@ void input_mode(){
             big = !big;
             continue;
         } 
+        if(key == 0x1c){ //ENTER
+            *address = 0;
+            loop = false;
+            break;
+        }
+        if(key == 0x0e){ 
+            if(cursor_offset == start_offset) 
+                continue;
+            address--;
+            *address = 0;
+            cursor_offset -= 2;
+            set_cursor_offset(cursor_offset);
+            printC(' ', -1, -1);
+            cursor_offset -= 2;
+            set_cursor_offset(cursor_offset);
+            continue;
+        }
         if(!check_if_letter_key(key)){
             continue;
         }
@@ -277,9 +273,12 @@ void input_mode(){
                 character = keycodes[i].symbol;
                 if(!big && character != ' ')
                     character += 32;
+               
                 break;
             }
         }
+        *address = character;
+        address++;
         printC(character, -1, -1);
     }
 
@@ -332,6 +331,8 @@ void user_mode(){
             print("User input mode, enter command\n", 0, 0);
             print("Write to memory:\n", 0, 1);
             input_mode();
+            clearScreen();
+            print("User input mode, enter command\n", 0, 0);
             break;
 
             default:
