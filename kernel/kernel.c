@@ -37,12 +37,8 @@ int main(){
     print("Kernel loaded sucessfuly!\n", 0, 0);
     wait();
     write_string_to_memory("Hello, world!", 0);
-    //printC(load_from_memory(0), 0, 1);
-    //printC(load_from_memory(1), 0, 2);
     wait();
     print((char *) get_memory_address(0), 0, 1);
-    //scrollDown();
-    //print_head(0);
     wait();
     print_head(2,0);    
     wait();      
@@ -124,6 +120,11 @@ void scrollDown(){
     for(col = 0; col < MAX_COLS; col++){
         char * addressTo = getVideoAdress(col, row);
         *addressTo = ' ';
+    }
+    row = get_row(cursor_offset+VIDEO_ADDRESS);
+    if(row > 0){
+        cursor_offset -= 160;
+        set_cursor_offset(cursor_offset);
     }
 }
 
@@ -333,6 +334,10 @@ void user_mode(){
             input_mode();
             clearScreen();
             print("User input mode, enter command\n", 0, 0);
+            break;
+
+            case 0x0e: // BACKSPACE
+            scrollDown();
             break;
 
             default:
