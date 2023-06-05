@@ -8,7 +8,11 @@
 #define WHITE_ON_RED 0x47
 #define RED_ON_BLACK 0x04
 #define DATA_LIMIT 65536
+#define KEYBOARD_STATUS_PORT 0x64
+#define KEYBOARD_DATA_PORT 0x60
 #include "portOperations.c"
+#include <stdbool.h>
+#include <stdint.h>
 
 
 extern void write_to_memory(int, unsigned char);
@@ -26,6 +30,9 @@ void set_cursor_offset(int offset);
 void setStyle(unsigned char style);
 unsigned long long get_elapsed_time();
 
+void wait();
+
+
 int cursor_offset;
 
 int main(){
@@ -34,13 +41,18 @@ int main(){
     
     setStyle(WHITE_ON_BLACK);
     print("Kernel loaded sucessfuly!", 0, 0);
+    wait();
     write_string_to_memory("Hello, world!", 0);
     //printC(load_from_memory(0), 0, 1);
     //printC(load_from_memory(1), 0, 2);
+    wait();
     print((char *) get_memory_address(0), 0, 1);
     //scrollDown();
     //print_head(0);
-    print_head(2,0);
+    wait();
+    print_head(2,0);    
+    wait();      
+    print_head(0,0);
 
     return 0;
 }
@@ -180,4 +192,42 @@ unsigned long long get_elapsed_time() {
     time = ((unsigned long long)high << 32) | low;
 
     return time;
+}
+
+bool is_key_pressed()
+{
+    // Check the keyboard status port (0x64) to determine if a key is pressed
+    // Bit 0 of the status port will be set if there is data available
+    unsigned char status = port_byte_in(KEYBOARD_STATUS_PORT);
+    return (status & 0x01);  // Check the least significant bit
+}
+
+unsigned char read_key()
+{
+    // Wait for a key press by continuously checking the keyboard status
+    while (!is_key_pressed()) {
+   
+    }
+
+    // Read the key code from the data port (0x60)
+    unsigned char key = port_byte_in(KEYBOARD_DATA_PORT);
+    return key;
+}
+
+void wait_for_keypress(unsigned char keyCode)
+{   
+    for (unsigned int i = 0; i < 1000000; ++i) {
+            asm("nop");
+        }
+    unsigned char key = 0;
+    do {
+        for (unsigned int i = 0; i < 100000; ++i) {
+            asm("nop"); 
+        }
+        key = read_key();
+    } while (key != keyCode);
+}
+void wait(){
+    wait_for_keypress(0x1C);
+    //wait_for_keypress();
 }
