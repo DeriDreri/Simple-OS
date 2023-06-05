@@ -52,7 +52,9 @@ int main(){
     wait();
     print_head(2,0);    
     wait();      
-    print_head(0,0);
+    setStyle(GREEN_ON_BLACK);
+    wait();
+    setStyle(WHITE_ON_RED);
 
     return 0;
 }
