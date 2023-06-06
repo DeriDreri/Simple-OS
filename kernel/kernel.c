@@ -1,6 +1,7 @@
+#include "../interrupts/isr.h"
+#include "../interrupts/idt.h"
+
 int main(){
-    //*(char*)0xb8000 = 'Q';  
-    char* video_memory = (char*)0xb8000;
-    *video_memory = 'Q';
+    isr_install();
     return 0;
 }
