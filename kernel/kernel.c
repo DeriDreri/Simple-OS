@@ -37,7 +37,6 @@ int main(){
     isr_install();
 
     print("Kernel loaded sucessfuly!\n", 0, 0);
-    //__asm__ __volatile__("int $2");
     
     setStyle(WHITE_ON_BLACK);
     wait();
