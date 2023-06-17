@@ -1,6 +1,6 @@
 #include "isr.h"
 #include "idt.h"
-
+extern void prints();
 void isr_install()
 {
     set_idt_gate(0, (unsigned)isr0);
@@ -38,7 +38,50 @@ void isr_install()
     set_idt();
 }
 
+char *exception_messages[] = {
+    "Division By Zero",
+    "Debug",
+    "Non Maskable Interrupt",
+    "Breakpoint",
+    "Into Detected Overflow",
+    "Out of Bounds",
+    "Invalid Opcode",
+    "No Coprocessor",
+
+    "Double Fault",
+    "Coprocessor Segment Overrun",
+    "Bad TSS",
+    "Segment Not Present",
+    "Stack Fault",
+    "General Protection Fault",
+    "Page Fault",
+    "Unknown Interrupt",
+
+    "Coprocessor Fault",
+    "Alignment Check",
+    "Machine Check",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved"
+};
+
+
 void isr_handler(registers r)
-{
+{   
+    prints("received interrupt: ");
+    prints("\n");
+    prints(exception_messages[r.int_num]);
+    prints("\n");
     //TODO: print error message to screen (interrupt number = r.int_num)
 }

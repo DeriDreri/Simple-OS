@@ -1,3 +1,5 @@
+#ifndef KEYBOARD
+#define KEYBOARD
 #include "symbols.h"
 #include <stdbool.h>
 int getCursorPositionOffset(){
@@ -70,3 +72,4 @@ bool check_if_letter_key(unsigned char key){
         return true;
     return false;
 }
+#endif

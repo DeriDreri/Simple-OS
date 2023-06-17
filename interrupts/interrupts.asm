@@ -12,12 +12,15 @@ isr_common_stub:
 
     call isr_handler
 
-    pop eax
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    iret ;pops cs, eip, eflags, ss, esp
+    pop eax 
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	popa
+	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
+	sti
+	iret ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
 global isr0
 global isr1

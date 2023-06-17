@@ -16,9 +16,8 @@ kernel:
 	nasm interrupts/interrupts.asm -f elf32 -o $(BUILD_DIR)/interrupts.o
 	nasm kernel/kernel_entry.asm -f elf32 -o $(BUILD_DIR)/kernel_entry.o
 	as kernel/memory_operations.asm --32 -o $(BUILD_DIR)/memory.o
-	ld -m elf_i386 -o $(BUILD_DIR)/kernel.bin -Ttext 0x1000 $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/memory.o $(BUILD_DIR)/kernel.o --oformat binary
 	
-	ld -m elf_i386 -o $(BUILD_DIR)/kernel.bin -Ttext 0x1000 $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/interrupts.o --oformat binary
+	ld -m elf_i386 -o $(BUILD_DIR)/kernel.bin -Ttext 0x1000 $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/memory.o --oformat binary
 	
 combine: 
 	cat $(BUILD_DIR)/bootloader.bin $(BUILD_DIR)/kernel.bin > $(BUILD_DIR)/disk_img.bin
