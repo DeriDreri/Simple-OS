@@ -36,6 +36,7 @@ int main(){
     cursor_offset = getCursorPositionOffset();
     isr_install();
 
+
     print("Kernel loaded sucessfuly!\n", 0, 0);
     
     setStyle(WHITE_ON_BLACK);
@@ -51,7 +52,6 @@ int main(){
     user_mode();
 
 }
-
 
 void write_string_to_memory(char * string, int memory_address){
     char * address = (char *) get_memory_address(memory_address);

@@ -47,7 +47,7 @@ void print(char * string, int column, int row){
         
         if (*string == '\n'){
             address = (char *) getVideoAdress(0, get_row((int) address)+1);
-            cursor_offset = (int) address - VIDEO_ADDRESS;
+            cursor_offset = (int) (address - VIDEO_ADDRESS);
         }
         else{
             address[0] = *string;
@@ -62,7 +62,7 @@ void print(char * string, int column, int row){
 
 }
 
-prints(char * string){
+void prints(char * string){
     print(string, -1, -1);
 }
 
