@@ -4,7 +4,7 @@
 extern int cursor_offset;
 
 int get_row(int memory_address){
-    return (memory_address - VIDEO_ADDRESS) / 80;
+    return (memory_address - VIDEO_ADDRESS) / 160;
 }
 
 char * getVideoAdress(int column, int row){
@@ -12,6 +12,28 @@ char * getVideoAdress(int column, int row){
     return toReturn;
 }
 
+
+void scrollDown(){
+    int row = 1;
+    int col = 0;
+    for (row = 1; row < MAX_ROWS; row++){
+        for (col = 0; col < MAX_COLS; col++){
+            char * addressTo = getVideoAdress(col, row-1);
+            char * addressFrom = getVideoAdress(col, row);
+            *addressTo = *addressFrom;
+        }
+    }
+    row--;
+    for(col = 0; col < MAX_COLS; col++){
+        char * addressTo = getVideoAdress(col, row);
+        *addressTo = ' ';
+    }
+    row = get_row(cursor_offset+VIDEO_ADDRESS);
+    if(row > 0){
+        cursor_offset -= 160;
+        set_cursor_offset(cursor_offset);
+    }
+}
 void printC(char character, int column, int row){
     char * address;
     if(column < 0 || row < 0){
@@ -46,7 +68,14 @@ void print(char * string, int column, int row){
     while (*string != 0){
         
         if (*string == '\n'){
-            address = (char *) getVideoAdress(0, get_row((int) address)+1);
+            row = get_row((int) address);
+            if(row + 1 == MAX_ROWS){
+                address = (char *) getVideoAdress(0, row);
+                scrollDown();
+            }
+            else{
+                address = (char *)getVideoAdress(0, row+1);
+            }
             cursor_offset = (int) address - VIDEO_ADDRESS;
         }
         else{
@@ -66,24 +95,5 @@ prints(char * string){
     print(string, -1, -1);
 }
 
-void scrollDown(){
-    int row = 1;
-    int col = 0;
-    for (row = 1; row < MAX_ROWS; row++){
-        for (col = 0; col < MAX_COLS; col++){
-            char * addressTo = getVideoAdress(col, row-1);
-            char * addressFrom = getVideoAdress(col, row);
-            *addressTo = *addressFrom;
-        }
-    }
-    for(col = 0; col < MAX_COLS; col++){
-        char * addressTo = getVideoAdress(col, row);
-        *addressTo = ' ';
-    }
-    row = get_row(cursor_offset+VIDEO_ADDRESS);
-    if(row > 0){
-        cursor_offset -= 160;
-        set_cursor_offset(cursor_offset);
-    }
-}
+
 #endif

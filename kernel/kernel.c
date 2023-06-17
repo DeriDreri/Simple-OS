@@ -37,19 +37,16 @@ int main(){
     isr_install();
 
     print("Kernel loaded sucessfuly!\n", 0, 0);
+    for(int i = 0; i < 25; i++){
+        prints("Hello!\n");
+    }
+    wait();
+    prints("Hello there!\n");
+    wait();
+    prints("\n");
+    prints("Hello, 3!");
     
-    setStyle(WHITE_ON_BLACK);
-    wait();
-    write_string_to_memory("Hello, world!", 0);
-    wait();
-    print((char *) get_memory_address(0), 0, 1);
-    wait();
-    print_head(2,0);    
-    wait();      
-    setStyle(GREEN_ON_BLACK);
-    wait();
-    user_mode();
-
+    __asm__ volatile ("hlt");
 }
 
 
