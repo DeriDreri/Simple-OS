@@ -4,6 +4,8 @@
 #include "keycodes.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include "../interrupts/isr.h"
+#include "../interrupts/idt.h"
 
 
 extern void write_to_memory(int, unsigned char);
@@ -46,6 +48,11 @@ int main(){
     wait();
     user_mode();
 
+#include "../interrupts/isr.h"
+#include "../interrupts/idt.h"
+
+int main(){
+    isr_install();
     return 0;
 }
 
