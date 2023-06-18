@@ -1,5 +1,4 @@
-#ifndef PRINT
-#define PRINT
+#include "print.h"
 #include "symbols.h"
 extern int cursor_offset;
 
@@ -91,9 +90,6 @@ void print(char * string, int column, int row){
 
 }
 
-prints(char * string){
+void prints(char * string){
     print(string, -1, -1);
 }
-
-
-#endif

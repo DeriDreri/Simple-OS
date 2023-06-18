@@ -7,6 +7,7 @@
 #include "../interrupts/isr.h"
 #include "../interrupts/idt.h"
 #include "print.c"
+#include "../interrupts/timer.h"
 
 
 extern void write_to_memory(int, unsigned char);
@@ -26,6 +27,7 @@ unsigned long long get_elapsed_time();
 int get_row(int memory_address);
 void user_mode();
 unsigned char byteToHexChar(unsigned char);
+extern void print_time();
 
 void wait();
 
@@ -34,17 +36,11 @@ int cursor_offset;
 int main(){
     
     cursor_offset = getCursorPositionOffset();
+    irq_install();
     isr_install();
 
     print("Kernel loaded sucessfuly!\n", 0, 0);
-    for(int i = 0; i < 25; i++){
-        prints("Hello!\n");
-    }
-    wait();
-    prints("Hello there!\n");
-    wait();
-    prints("\n");
-    prints("Hello, 3!");
+    
     
     __asm__ volatile ("hlt");
 }
@@ -263,6 +259,14 @@ void user_mode(){
 
             case 0x0e: // BACKSPACE
             scrollDown();
+            break;
+
+            case 0x14: //T
+            clearScreen();
+            print_time();
+            wait();
+            clearScreen();
+            print("User input mode, enter command\n", 0, 0);
             break;
 
             default:

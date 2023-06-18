@@ -1,6 +1,7 @@
 #include "isr.h"
 #include "idt.h"
 #include "../kernel/portOperations.h"
+#include "timer.c"
 extern void prints();
 
 isr_t interrupt_handlers[256];
@@ -132,4 +133,10 @@ void irq_handler(registers r)
         isr_t handler = interrupt_handlers[r.int_num];
         handler(r);
     }
+}
+
+void irq_install()
+{
+    asm volatile("sti");
+    init_timer(50);
 }
