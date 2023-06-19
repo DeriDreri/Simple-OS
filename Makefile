@@ -7,6 +7,7 @@ KERNEL=$(BUILD_DIR)/kernel.o
 all: bootloader kernel combine
 
 bootloader:
+	mkdir -p build
 	nasm bootloader/bootloader.asm -f bin -o $(BUILD_DIR)/bootloader.bin
 
 kernel:
