@@ -36,11 +36,22 @@ int cursor_offset;
 int main(){
     
     cursor_offset = getCursorPositionOffset();
-    irq_install();
+    //irq_install();
     isr_install();
 
+    setStyle(WHITE_ON_BLACK);
     print("Kernel loaded sucessfuly!\n", 0, 0);
-    
+    wait();
+    write_string_to_memory("Hello, world!", 0);
+    wait();
+    print((char *) get_memory_address(0), 0, 1);
+    wait();
+    print_head(2,0);    
+    wait();      
+    setStyle(GREEN_ON_BLACK);
+    wait();
+    user_mode();
+
     
     __asm__ volatile ("hlt");
 }
