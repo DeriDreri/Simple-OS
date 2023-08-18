@@ -1,7 +1,6 @@
 # Simple-OS
 
 The project is a part of Architektura Komputerów 2 (Computer Architecture 2) class on WrocTech's Computer Engineering field realised by Dominik Cybulski (DeriDreri) and Olga Tryk.
-The current representant of the group is Dominik Cybulski.
 
 The projects aims to create a simple operating system avaliable to be booted on qemu simulator. The functions of the OS include:
 - Functional bootloader
